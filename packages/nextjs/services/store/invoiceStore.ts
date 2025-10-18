@@ -33,7 +33,7 @@ interface InvoiceState {
 
 export const useInvoiceStore = create<InvoiceState>()(
   devtools(
-    (set, get) => ({
+    (set) => ({
       invoices: [],
       currentInvoice: null,
       isLoading: false,
