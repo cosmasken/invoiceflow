@@ -20,10 +20,12 @@ export const MyNfts = () => {
   const [loading, setLoading] = useState(false);
 
   const { data: se2NftContract } = useScaffoldContract({
+    // @ts-ignore - Legacy SE2NFT contract
     contractName: "SE2NFT",
   });
 
   const { data: balance } = useScaffoldReadContract({
+    // @ts-ignore - Legacy SE2NFT contract
     contractName: "SE2NFT",
     functionName: "balanceOf",
     args: [connectedAddress],

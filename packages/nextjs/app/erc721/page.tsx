@@ -13,6 +13,7 @@ const ERC721: NextPage = () => {
 
   const [toAddress, setToAddress] = useState<string>("");
 
+  // @ts-ignore - Legacy SE2NFT contract
   const { writeContractAsync: writeSE2TokenAsync } = useScaffoldWriteContract("SE2NFT");
 
   return (
@@ -90,6 +91,7 @@ const ERC721: NextPage = () => {
                 className="btn btn-accent text-lg px-12 mt-2"
                 onClick={async () => {
                   try {
+                    // @ts-ignore - Legacy SE2NFT contract function
                     await writeSE2TokenAsync({ functionName: "mintItem", args: [connectedAddress] });
                   } catch (e) {
                     console.error("Error while minting token", e);
@@ -113,6 +115,7 @@ const ERC721: NextPage = () => {
                   disabled={!toAddress}
                   onClick={async () => {
                     try {
+                      // @ts-ignore - Legacy SE2NFT contract function
                       await writeSE2TokenAsync({ functionName: "mintItem", args: [toAddress] });
                       setToAddress("");
                     } catch (e) {

@@ -18,10 +18,12 @@ export const AllNfts = () => {
   const [loading, setLoading] = useState(false);
 
   const { data: se2NftContract } = useScaffoldContract({
+    // @ts-ignore - Legacy SE2NFT contract
     contractName: "SE2NFT",
   });
 
   const { data: totalSupply } = useScaffoldReadContract({
+    // @ts-ignore - Legacy SE2NFT contract
     contractName: "SE2NFT",
     functionName: "totalSupply",
     watch: true,
