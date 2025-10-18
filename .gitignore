@@ -23,3 +23,8 @@ node_modules
 dist
 
 *.md
+# Local Netlify folder
+.netlify
+
+
+sites/
