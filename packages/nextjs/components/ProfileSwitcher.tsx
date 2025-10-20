@@ -1,6 +1,6 @@
 import { Button } from "~~/components/ui/button";
 import { Card, CardContent } from "~~/components/ui/card";
-import { useAppStore, UserProfile } from "~~/store/useAppStore";
+import { useAppStore } from "~~/store/useAppStore";
 import { Briefcase, ShoppingCart } from "lucide-react";
 
 export const ProfileSwitcher = () => {

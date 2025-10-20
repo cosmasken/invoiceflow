@@ -2,9 +2,6 @@
 
 import { useState } from "react";
 import { useAccount } from "wagmi";
-import { Address, Balance } from "~~/components/scaffold-eth";
-import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
-import { notification } from "~~/utils/scaffold-eth";
 import { Button } from "~~/components/ui/button";
 import { Input } from "~~/components/ui/input";
 import { Label } from "~~/components/ui/label";
@@ -13,8 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~~/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~~/components/ui/tabs";
 import { Progress } from "~~/components/ui/progress";
-import { useInvoiceStore } from "~~/services/store/invoiceStore";
-import { Wallet, TrendingUp, DollarSign, Activity, Calculator, PieChart, Layers, Briefcase, ShoppingCart } from "lucide-react";
+import { Wallet, TrendingUp, DollarSign, Activity, Calculator, PieChart, Layers } from "lucide-react";
 import { ProfileSwitcher } from "~~/components/ProfileSwitcher";
 
 // Define types for our invoices, loans, and fraction ownership
@@ -138,11 +134,10 @@ const mockPoolStats = {
 };
 
 const LendingPage = () => {
-  const { address: connectedAddress } = useAccount();
+  const { address } = useAccount();
   const [userProfile, setUserProfile] = useState<'seller' | 'buyer'>('seller');
   const [selectedInvoice, setSelectedInvoice] = useState<string>("");
   const [borrowAmount, setBorrowAmount] = useState<string>("");
-  const [fractionCount, setFractionCount] = useState<string>("");
   const [buyInvoiceId, setBuyInvoiceId] = useState<string>("");
   const [buyFractionAmount, setBuyFractionAmount] = useState<string>("");
   const [fractionalizeId, setFractionalizeId] = useState<string>("");
