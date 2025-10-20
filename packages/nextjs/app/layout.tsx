@@ -5,8 +5,8 @@ import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
 export const metadata = getMetadata({
-  title: "Scaffold-ETH 2 App",
-  description: "Built with 🏗 Scaffold-ETH 2",
+  title: "InvoiceFlow AI",
+  description: "Transform your unpaid invoices into instant financing with AI-powered verification and blockchain security",
 });
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {

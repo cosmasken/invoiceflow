@@ -1,26 +1,33 @@
-"use client";
+'use client';
 
-import { useAccount } from "wagmi";
-import { useMintInvoiceNFT, useUserInvoices } from "~~/hooks/useInvoiceQueries";
-import { useInvoiceStore, type Invoice } from "~~/services/store/invoiceStore";
+import { useState } from 'react';
+import { useAccount } from 'wagmi';
+import { useMintInvoiceNFT, useUserInvoices } from '~~/hooks/useInvoiceQueries';
+import { useInvoiceStore, type Invoice } from '~~/services/store/invoiceStore';
+import { InvoiceDetailsModal } from './InvoiceDetailsModal';
 
-const InvoiceCard = ({ invoice }: { invoice: Invoice }) => {
+const InvoiceCard = ({ invoice, onViewDetails }: { invoice: Invoice; onViewDetails: (invoice: Invoice) => void }) => {
   const mintNFTMutation = useMintInvoiceNFT();
   const { isLoading } = useInvoiceStore();
 
   const handleMintNFT = () => {
-    if (invoice.status === "verified") {
+    if (invoice.status === 'verified') {
       mintNFTMutation.mutate(invoice);
     }
   };
 
-  const getStatusColor = (status: Invoice["status"]) => {
+  const getStatusColor = (status: Invoice['status']) => {
     switch (status) {
-      case "pending": return "badge-warning";
-      case "verified": return "badge-info";
-      case "minted": return "badge-success";
-      case "funded": return "badge-primary";
-      default: return "badge-ghost";
+      case 'pending':
+        return 'badge-warning';
+      case 'verified':
+        return 'badge-info';
+      case 'minted':
+        return 'badge-success';
+      case 'funded':
+        return 'badge-primary';
+      default:
+        return 'badge-ghost';
     }
   };
 
@@ -29,48 +36,54 @@ const InvoiceCard = ({ invoice }: { invoice: Invoice }) => {
       <div className="card-body">
         <div className="flex justify-between items-start">
           <h3 className="card-title text-lg">{invoice.description}</h3>
-          <div className={`badge ${getStatusColor(invoice.status)}`}>
-            {invoice.status}
-          </div>
+          <div className={`badge ${getStatusColor(invoice.status)}`}>{invoice.status}</div>
         </div>
-        
+
         <div className="space-y-2 text-sm">
-          <p><span className="font-semibold">Amount:</span> {invoice.amount} {invoice.currency}</p>
-          <p><span className="font-semibold">Due Date:</span> {new Date(invoice.dueDate).toLocaleDateString()}</p>
-          <p><span className="font-semibold">Recipient:</span> {invoice.recipientAddress.slice(0, 10)}...</p>
-          
+          <p>
+            <span className="font-semibold">Amount:</span> {invoice.amount} {invoice.currency}
+          </p>
+          <p>
+            <span className="font-semibold">Due Date:</span> {new Date(invoice.dueDate).toLocaleDateString()}
+          </p>
+          <p>
+            <span className="font-semibold">Recipient:</span> {invoice.recipientAddress.slice(0, 10)}...
+          </p>
+
           {invoice.verificationScore && (
-            <p><span className="font-semibold">AI Score:</span> {(invoice.verificationScore * 100).toFixed(1)}%</p>
+            <p>
+              <span className="font-semibold">AI Score:</span> {(invoice.verificationScore * 100).toFixed(1)}%
+            </p>
           )}
-          
+
           {invoice.tokenId && (
-            <p><span className="font-semibold">Token ID:</span> {invoice.tokenId}</p>
+            <p>
+              <span className="font-semibold">Token ID:</span> {invoice.tokenId}
+            </p>
           )}
         </div>
 
         <div className="card-actions justify-end mt-4">
-          {invoice.status === "verified" && (
-            <button
-              onClick={handleMintNFT}
-              disabled={isLoading}
-              className="btn btn-primary btn-sm"
-            >
+          <button className="btn btn-ghost btn-sm" onClick={() => onViewDetails(invoice)}>
+            View Details
+          </button>
+          <button className="btn btn-ghost btn-sm" onClick={() => console.log('Download invoice')}>
+            Download
+          </button>
+          {invoice.status === 'verified' && (
+            <button onClick={handleMintNFT} disabled={isLoading} className="btn btn-primary btn-sm">
               {isLoading ? (
                 <>
                   <span className="loading loading-spinner loading-xs"></span>
                   Minting...
                 </>
               ) : (
-                "Mint NFT"
+                'Mint NFT'
               )}
             </button>
           )}
-          
-          {invoice.status === "minted" && (
-            <button className="btn btn-secondary btn-sm" disabled>
-              Ready for Lending
-            </button>
-          )}
+
+          {invoice.status === 'minted' && <button className="btn btn-secondary btn-sm">Ready for Lending</button>}
         </div>
       </div>
     </div>
@@ -81,6 +94,15 @@ export const InvoiceDashboard = () => {
   const { address } = useAccount();
   const { data: invoices, isLoading: isLoadingInvoices, error } = useUserInvoices(address);
   const { invoices: storeInvoices } = useInvoiceStore();
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+
+  const handleViewDetails = (invoice: Invoice) => {
+    setSelectedInvoice(invoice);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedInvoice(null);
+  };
 
   // Combine fetched invoices with store invoices (for newly created ones)
   const allInvoices = [...(invoices || []), ...storeInvoices];
@@ -128,11 +150,14 @@ export const InvoiceDashboard = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {allInvoices.map((invoice) => (
-            <InvoiceCard key={invoice.id} invoice={invoice} />
+          {allInvoices.map(invoice => (
+            <InvoiceCard key={invoice.id} invoice={invoice} onViewDetails={handleViewDetails} />
           ))}
         </div>
       )}
+
+      {selectedInvoice && <InvoiceDetailsModal invoice={selectedInvoice} onClose={handleCloseModal} />}
     </div>
   );
 };
+

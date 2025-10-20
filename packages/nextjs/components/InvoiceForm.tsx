@@ -4,6 +4,12 @@ import { useState } from "react";
 import { useAccount } from "wagmi";
 import { useVerifyInvoice } from "~~/hooks/useInvoiceQueries";
 import { useInvoiceStore } from "~~/services/store/invoiceStore";
+import { Input } from "~~/components/ui/input";
+import { Label } from "~~/components/ui/label";
+import { Textarea } from "~~/components/ui/textarea";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~~/components/ui/card";
+import { Button } from "~~/components/ui/button";
+import { FileText, Upload } from "lucide-react";
 
 export const InvoiceForm = () => {
   const { address } = useAccount();
@@ -12,11 +18,12 @@ export const InvoiceForm = () => {
 
   const [formData, setFormData] = useState({
     amount: "",
-    currency: "USD",
     dueDate: "",
-    recipientAddress: "",
-    description: "",
+    issuer: "",
+    recipient: "",
+    description: ""
   });
+  const [file, setFile] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,124 +43,130 @@ export const InvoiceForm = () => {
     verifyInvoiceMutation.mutate(invoiceData);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value
     }));
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
+  };
+
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-lg">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Create Invoice NFT</h2>
-      
-      {error && (
-        <div className="alert alert-error mb-4">
-          <span>{error}</span>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="label">
-              <span className="label-text">Amount</span>
-            </label>
-            <input
-              type="number"
-              name="amount"
-              value={formData.amount}
-              onChange={handleInputChange}
-              className="input input-bordered w-full"
-              placeholder="5000"
-              required
-              min="0"
-              step="0.01"
-            />
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <FileText className="w-5 h-5" />
+          Invoice Details
+        </CardTitle>
+        <CardDescription>Enter the invoice information</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {error && (
+          <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-md text-destructive text-sm">
+            {error}
           </div>
-
-          <div>
-            <label className="label">
-              <span className="label-text">Currency</span>
-            </label>
-            <select
-              name="currency"
-              value={formData.currency}
-              onChange={handleInputChange}
-              className="select select-bordered w-full"
-            >
-              <option value="USD">USD</option>
-              <option value="EUR">EUR</option>
-              <option value="ETH">ETH</option>
-            </select>
-          </div>
+        )}
+        
+        <div className="space-y-2">
+          <Label htmlFor="amount">Amount ($) *</Label>
+          <Input
+            id="amount"
+            name="amount"
+            type="number"
+            placeholder="10000"
+            value={formData.amount}
+            onChange={handleInputChange}
+            required
+          />
         </div>
 
-        <div>
-          <label className="label">
-            <span className="label-text">Due Date</span>
-          </label>
-          <input
-            type="date"
+        <div className="space-y-2">
+          <Label htmlFor="dueDate">Due Date *</Label>
+          <Input
+            id="dueDate"
             name="dueDate"
+            type="date"
             value={formData.dueDate}
             onChange={handleInputChange}
-            className="input input-bordered w-full"
             required
           />
         </div>
 
-        <div>
-          <label className="label">
-            <span className="label-text">Recipient Address</span>
-          </label>
-          <input
-            type="text"
-            name="recipientAddress"
-            value={formData.recipientAddress}
+        <div className="space-y-2">
+          <Label htmlFor="issuer">Issuer *</Label>
+          <Input
+            id="issuer"
+            name="issuer"
+            placeholder="Company Name"
+            value={formData.issuer}
             onChange={handleInputChange}
-            className="input input-bordered w-full"
-            placeholder="0x742d35Cc6634C0532925a3b8D4C9db96590e4CAF"
             required
           />
         </div>
 
-        <div>
-          <label className="label">
-            <span className="label-text">Description</span>
-          </label>
-          <textarea
+        <div className="space-y-2">
+          <Label htmlFor="recipient">Recipient *</Label>
+          <Input
+            id="recipient"
+            name="recipient"
+            placeholder="Recipient Name"
+            value={formData.recipient}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="description">Description</Label>
+          <Textarea
+            id="description"
             name="description"
+            placeholder="Brief description of services/products"
             value={formData.description}
             onChange={handleInputChange}
-            className="textarea textarea-bordered w-full"
-            placeholder="Web development services for Q4 2024"
             rows={3}
-            required
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={isLoading || !address}
-          className="btn btn-primary w-full"
-        >
-          {isLoading ? (
-            <>
-              <span className="loading loading-spinner"></span>
-              Verifying Invoice...
-            </>
-          ) : (
-            "Create & Verify Invoice"
-          )}
-        </button>
-      </form>
-
-      {!address && (
-        <div className="alert alert-warning mt-4">
-          <span>Please connect your wallet to create invoices</span>
+        <div className="space-y-2">
+          <Label htmlFor="file">Upload Invoice (PDF/Image)</Label>
+          <div className="relative">
+            <Input
+              id="file"
+              type="file"
+              accept=".pdf,.png,.jpg,.jpeg"
+              onChange={handleFileChange}
+              className="cursor-pointer"
+            />
+            {file && (
+              <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                <Upload className="w-4 h-4" />
+                <span>{file.name}</span>
+              </div>
+            )}
+          </div>
         </div>
-      )}
-    </div>
+
+        <Button 
+          type="submit" 
+          disabled={isLoading || !address}
+          className="w-full"
+          size="lg"
+        >
+          {isLoading ? "Verifying..." : "Verify & Mint"}
+        </Button>
+        
+        {!address && (
+          <div className="p-3 bg-warning/10 border border-warning/30 rounded-md text-warning text-sm">
+            Please connect your wallet to create invoices
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
